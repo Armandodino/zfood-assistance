@@ -22,7 +22,9 @@
     "firebase:deploy:hosting": "firebase deploy --only hosting",
     "firebase:deploy:functions": "firebase deploy --only functions",
     "firebase:deploy": "npm run firebase:build && firebase deploy",
-    "firebase:emulators": "firebase emulators:start"
+    "firebase:emulators": "firebase emulators:start",
+    "db:export": "npx tsx scripts/export-data.ts",
+    "db:import": "npx tsx scripts/import-data.ts"
   },
   "dependencies": {
     "@expo-google-fonts/inter": "^0.4.2",

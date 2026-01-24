@@ -166,6 +166,8 @@ npm run firebase:build:webapp    # Build webapp pour hosting
 npm run firebase:build:functions # Build Cloud Functions
 npm run firebase:deploy          # Déploie tout
 npm run firebase:emulators       # Test local
+npm run db:export                # Exporter les données
+npm run db:import                # Importer les données
 ```
 
 ### Configuration
@@ -173,6 +175,16 @@ npm run firebase:emulators       # Test local
 2. Modifier `.firebaserc` avec votre project ID
 3. `firebase login` pour s'authentifier
 4. `npm run firebase:deploy` pour déployer
+
+## Migration vers Neon (indépendance de Replit)
+
+Pour être 100% indépendant de Replit, voir le guide complet: `MIGRATION_GUIDE.md`
+
+1. Créer un compte gratuit sur https://neon.tech
+2. Créer une base de données PostgreSQL
+3. Exporter les données: `npm run db:export`
+4. Importer vers Neon: `DATABASE_URL=url_neon npm run db:import`
+5. Configurer Firebase avec la nouvelle URL
 
 ## Notes de développement
 
