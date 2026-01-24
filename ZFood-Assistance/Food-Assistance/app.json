@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "ZFood assistance",
+    "slug": "zfoodassistance",
+    "version": "2.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "zfoodassistance",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "extra": {
+      "EXPO_PUBLIC_DOMAIN": "f7d17aee-802a-40ed-ac8e-5c98aba8e47d-00-3d3zm4o3nbo2d.kirk.replit.dev"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.zfoodassistance.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#16a34a",
+        "foregroundImage": "./assets/images/icon.png"
+      },
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false,
+      "package": "com.zfoodassistance.app"
+    },
+    "web": {
+      "output": "single",
+      "favicon": "./assets/images/icon.png"
+    },
+    "plugins": [
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#16a34a",
+          "dark": {
+            "backgroundColor": "#14532d"
+          }
+        }
+      ],
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "reactCompiler": true
+    }
+  }
+}

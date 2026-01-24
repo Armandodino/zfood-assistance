@@ -1,0 +1,1518 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZFood Assistance - Tableau de Bord Super-Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #16a34a;
+      --primary-dark: #14532d;
+      --primary-light: #dcfce7;
+      --accent: #f97316;
+      --accent-light: #fed7aa;
+      --background: #f8fafc;
+      --card: #ffffff;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--background);
+      color: var(--text-primary);
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 280px;
+      background: linear-gradient(180deg, var(--primary-dark) 0%, var(--primary) 100%);
+      padding: 24px;
+      z-index: 100;
+      overflow-y: auto;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 16px;
+      margin-bottom: 32px;
+    }
+
+    .logo-icon {
+      width: 48px;
+      height: 48px;
+      background: white;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .logo-text {
+      color: white;
+    }
+
+    .logo-text h1 {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .logo-text span {
+      font-size: 11px;
+      opacity: 0.8;
+    }
+
+    .nav-section {
+      margin-bottom: 24px;
+    }
+
+    .nav-section-title {
+      color: rgba(255,255,255,0.5);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+      padding-left: 12px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      color: rgba(255,255,255,0.8);
+      text-decoration: none;
+      border-radius: 12px;
+      margin-bottom: 4px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .nav-item:hover, .nav-item.active {
+      background: rgba(255,255,255,0.15);
+      color: white;
+    }
+
+    .nav-item.active {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .nav-icon {
+      width: 20px;
+      text-align: center;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 280px;
+      padding: 32px;
+      min-height: 100vh;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+
+    .header-left h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .header-left p {
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .sync-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--primary-light);
+      border-radius: 24px;
+      font-size: 13px;
+      color: var(--primary-dark);
+    }
+
+    .sync-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--success);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .refresh-btn {
+      padding: 10px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .refresh-btn:hover {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      padding: 24px;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+    }
+
+    .stat-card.green::before { background: var(--primary); }
+    .stat-card.orange::before { background: var(--accent); }
+    .stat-card.blue::before { background: #3b82f6; }
+    .stat-card.red::before { background: var(--danger); }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card.green .stat-icon { background: var(--primary-light); }
+    .stat-card.orange .stat-icon { background: var(--accent-light); }
+    .stat-card.blue .stat-icon { background: #dbeafe; }
+    .stat-card.red .stat-icon { background: #fee2e2; }
+
+    .stat-label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .stat-change {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      margin-top: 8px;
+    }
+
+    .stat-change.up {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    .stat-change.down {
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    /* Charts Section */
+    .charts-section {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .chart-card {
+      background: var(--card);
+      padding: 24px;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .chart-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .chart-filter {
+      display: flex;
+      gap: 8px;
+    }
+
+    .filter-btn {
+      padding: 6px 12px;
+      background: var(--background);
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Alerts Section */
+    .alerts-section {
+      background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+
+    .alerts-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .alerts-header h3 {
+      color: #92400e;
+      font-size: 16px;
+    }
+
+    .alert-badge {
+      background: #f59e0b;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .alerts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .alert-item {
+      background: white;
+      padding: 16px;
+      border-radius: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .alert-info h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .alert-info p {
+      font-size: 12px;
+      color: #b45309;
+      margin-top: 2px;
+    }
+
+    .alert-progress {
+      width: 60px;
+      height: 60px;
+      position: relative;
+    }
+
+    .alert-progress svg {
+      transform: rotate(-90deg);
+    }
+
+    .alert-progress-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 12px;
+      font-weight: 700;
+      color: #b45309;
+    }
+
+    /* Activity Feed */
+    .activity-section {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .activity-card {
+      background: var(--card);
+      padding: 24px;
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .activity-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .activity-header h3 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .see-all {
+      color: var(--primary);
+      font-size: 13px;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .activity-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--background);
+      border-radius: 12px;
+    }
+
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .activity-icon.order { background: var(--primary-light); }
+    .activity-icon.client { background: #dbeafe; }
+    .activity-icon.payment { background: var(--accent-light); }
+
+    .activity-info {
+      flex: 1;
+    }
+
+    .activity-info h4 {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-primary);
+    }
+
+    .activity-info p {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .activity-amount {
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 13px;
+    }
+
+    /* Tables */
+    .data-section {
+      background: var(--card);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+
+    .data-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 24px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .data-header h3 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .data-tabs {
+      display: flex;
+      gap: 8px;
+    }
+
+    .data-tab {
+      padding: 8px 16px;
+      background: var(--background);
+      border: none;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .data-tab.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .data-table th {
+      text-align: left;
+      padding: 16px 24px;
+      background: var(--background);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .data-table td {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+    }
+
+    .data-table tr:hover {
+      background: var(--background);
+    }
+
+    .client-name {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .client-avatar {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-badge.paid {
+      background: var(--primary-light);
+      color: var(--primary-dark);
+    }
+
+    .status-badge.unpaid {
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    .loyalty-bar {
+      width: 100px;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .loyalty-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary) 0%, var(--accent) 100%);
+      border-radius: 4px;
+    }
+
+    /* Login Modal */
+    .login-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .login-modal {
+      background: white;
+      padding: 48px;
+      border-radius: 24px;
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .login-logo {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      font-size: 40px;
+    }
+
+    .login-modal h2 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .login-modal p {
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+    }
+
+    .login-input {
+      width: 100%;
+      padding: 16px 20px;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 16px;
+      text-align: center;
+      letter-spacing: 4px;
+      margin-bottom: 16px;
+      transition: all 0.2s;
+    }
+
+    .login-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(22, 163, 74, 0.3);
+    }
+
+    .login-error {
+      color: var(--danger);
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Responsive */
+    @media (max-width: 1400px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 1200px) {
+      .charts-section {
+        grid-template-columns: 1fr;
+      }
+      .activity-section {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      .main-content {
+        margin-left: 0;
+      }
+    }
+
+    /* Loading */
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login Modal -->
+  <div class="login-overlay" id="login-overlay">
+    <div class="login-modal">
+      <div class="login-logo">&#127807;</div>
+      <h2>ZFood Assistance</h2>
+      <p>Entrez le mot de passe administrateur pour acceder au tableau de bord</p>
+      <input type="password" class="login-input" id="password-input" placeholder="******" maxlength="10">
+      <button class="login-btn" onclick="login()">Connexion</button>
+      <p class="login-error" id="login-error">Mot de passe incorrect</p>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay hidden" id="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="logo-container">
+      <div class="logo-icon">&#127807;</div>
+      <div class="logo-text">
+        <h1>ZFood</h1>
+        <span>Tableau de Bord Pro</span>
+      </div>
+    </div>
+
+    <nav>
+      <div class="nav-section">
+        <div class="nav-section-title">Menu Principal</div>
+        <div class="nav-item active" onclick="showSection('dashboard')">
+          <span class="nav-icon">&#128200;</span>
+          <span>Tableau de bord</span>
+        </div>
+        <div class="nav-item" onclick="showSection('clients')">
+          <span class="nav-icon">&#128101;</span>
+          <span>Clients</span>
+        </div>
+        <div class="nav-item" onclick="showSection('orders')">
+          <span class="nav-icon">&#128230;</span>
+          <span>Commandes</span>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Analyses</div>
+        <div class="nav-item" onclick="showSection('analytics')">
+          <span class="nav-icon">&#128202;</span>
+          <span>Statistiques</span>
+        </div>
+        <div class="nav-item" onclick="showSection('loyalty')">
+          <span class="nav-icon">&#127942;</span>
+          <span>Programme Fidelite</span>
+        </div>
+      </div>
+
+      <div class="nav-section">
+        <div class="nav-section-title">Lieu</div>
+        <div class="nav-item">
+          <span class="nav-icon">&#128205;</span>
+          <span>Abidjan, Cote d'Ivoire</span>
+        </div>
+      </div>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content" id="main-content">
+    <!-- Dashboard Section -->
+    <section id="section-dashboard">
+      <header class="header">
+        <div class="header-left">
+          <h1>Tableau de Bord</h1>
+          <p>Vue d'ensemble de votre activite ZFood</p>
+        </div>
+        <div class="header-right">
+          <div class="sync-status">
+            <div class="sync-dot"></div>
+            <span>Synchronise - <span id="last-sync">--:--</span></span>
+          </div>
+          <button class="refresh-btn" onclick="loadData()">
+            <span>&#8635;</span> Actualiser
+          </button>
+        </div>
+      </header>
+
+      <!-- Stats Grid -->
+      <div class="stats-grid">
+        <div class="stat-card green">
+          <div class="stat-icon">&#128101;</div>
+          <div class="stat-label">Clients Total</div>
+          <div class="stat-value" id="stat-clients">0</div>
+          <div class="stat-change up" id="stat-clients-change">+0 ce mois</div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon">&#127838;</div>
+          <div class="stat-label">Paniers Vendus</div>
+          <div class="stat-value" id="stat-baskets">0</div>
+          <div class="stat-change up" id="stat-baskets-today">+0 aujourd'hui</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-icon">&#128181;</div>
+          <div class="stat-label">Chiffre d'Affaires</div>
+          <div class="stat-value"><span id="stat-revenue">0</span> <small style="font-size:16px">FCFA</small></div>
+          <div class="stat-change up" id="stat-revenue-today">+0 aujourd'hui</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-icon">&#9888;</div>
+          <div class="stat-label">Impayes a Recouvrer</div>
+          <div class="stat-value"><span id="stat-unpaid">0</span> <small style="font-size:16px">FCFA</small></div>
+          <div class="stat-change down" id="stat-unpaid-count">0 commandes</div>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-section">
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">Evolution des Ventes</h3>
+            <div class="chart-filter">
+              <button class="filter-btn active" onclick="setChartPeriod('week')">7 jours</button>
+              <button class="filter-btn" onclick="setChartPeriod('month')">30 jours</button>
+            </div>
+          </div>
+          <canvas id="salesChart" height="100"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <h3 class="chart-title">Repartition Paiements</h3>
+          </div>
+          <canvas id="paymentChart" height="200"></canvas>
+        </div>
+      </div>
+
+      <!-- Loyalty Alerts -->
+      <div class="alerts-section" id="alerts-section" style="display:none;">
+        <div class="alerts-header">
+          <span style="font-size:24px">&#127942;</span>
+          <h3>Alertes Fidelite - Clients proche de 120 paniers</h3>
+          <span class="alert-badge" id="alert-count">0</span>
+        </div>
+        <div class="alerts-grid" id="alerts-grid"></div>
+      </div>
+
+      <!-- Activity Section -->
+      <div class="activity-section">
+        <div class="activity-card">
+          <div class="activity-header">
+            <h3>Activite Recente</h3>
+            <a href="#" class="see-all" onclick="showSection('orders')">Voir tout</a>
+          </div>
+          <div class="activity-list" id="activity-list">
+            <p style="color: var(--text-muted); text-align: center; padding: 40px;">Chargement...</p>
+          </div>
+        </div>
+        <div class="activity-card">
+          <div class="activity-header">
+            <h3>Top Clients du Mois</h3>
+          </div>
+          <div class="activity-list" id="top-clients-list">
+            <p style="color: var(--text-muted); text-align: center; padding: 40px;">Chargement...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Clients Section -->
+    <section id="section-clients" class="hidden">
+      <header class="header">
+        <div class="header-left">
+          <h1>Gestion des Clients</h1>
+          <p><span id="total-clients">0</span> clients enregistres</p>
+        </div>
+      </header>
+
+      <div class="data-section">
+        <div class="data-header">
+          <h3>Liste des Clients</h3>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Quartier</th>
+              <th>Telephone</th>
+              <th>Commandes</th>
+              <th>Total Depense</th>
+              <th>Fidelite</th>
+            </tr>
+          </thead>
+          <tbody id="clients-table"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Orders Section -->
+    <section id="section-orders" class="hidden">
+      <header class="header">
+        <div class="header-left">
+          <h1>Historique des Commandes</h1>
+          <p><span id="total-orders">0</span> commandes au total</p>
+        </div>
+      </header>
+
+      <div class="data-section">
+        <div class="data-header">
+          <h3>Commandes</h3>
+          <div class="data-tabs">
+            <button class="data-tab active" onclick="filterOrders('all', this)">Toutes</button>
+            <button class="data-tab" onclick="filterOrders('paid', this)">Payees</button>
+            <button class="data-tab" onclick="filterOrders('unpaid', this)">Impayees</button>
+          </div>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Quantite</th>
+              <th>Montant</th>
+              <th>Statut</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody id="orders-table"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Analytics Section -->
+    <section id="section-analytics" class="hidden">
+      <header class="header">
+        <div class="header-left">
+          <h1>Statistiques Detaillees</h1>
+          <p>Analyse approfondie de votre activite</p>
+        </div>
+      </header>
+
+      <div class="stats-grid" style="margin-bottom: 32px;">
+        <div class="stat-card green">
+          <div class="stat-icon">&#128176;</div>
+          <div class="stat-label">Revenu Mensuel</div>
+          <div class="stat-value"><span id="monthly-revenue">0</span></div>
+        </div>
+        <div class="stat-card orange">
+          <div class="stat-icon">&#128200;</div>
+          <div class="stat-label">Panier Moyen</div>
+          <div class="stat-value"><span id="avg-basket">0</span> FCFA</div>
+        </div>
+        <div class="stat-card blue">
+          <div class="stat-icon">&#128197;</div>
+          <div class="stat-label">Commandes/Jour (moy)</div>
+          <div class="stat-value" id="avg-daily-orders">0</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-icon">&#127941;</div>
+          <div class="stat-label">Taux de Paiement</div>
+          <div class="stat-value" id="payment-rate">0%</div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3 class="chart-title">Ventes par Quartier</h3>
+        </div>
+        <canvas id="quartierChart" height="80"></canvas>
+      </div>
+    </section>
+
+    <!-- Loyalty Section -->
+    <section id="section-loyalty" class="hidden">
+      <header class="header">
+        <div class="header-left">
+          <h1>Programme Fidelite</h1>
+          <p>Objectif : 120 paniers = 1 panier GRATUIT</p>
+        </div>
+      </header>
+
+      <div class="data-section">
+        <div class="data-header">
+          <h3>Progression des Clients</h3>
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Client</th>
+              <th>Paniers Achetes</th>
+              <th>Progression</th>
+              <th>Restant</th>
+              <th>Statut</th>
+            </tr>
+          </thead>
+          <tbody id="loyalty-table"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = '/api';
+    const ADMIN_PASSWORD = 'ZFOOD';
+    let allClients = [];
+    let allOrders = [];
+    let currentOrderFilter = 'all';
+    let salesChart, paymentChart, quartierChart;
+
+    // Login
+    function login() {
+      const password = document.getElementById('password-input').value.toUpperCase();
+      if (password === ADMIN_PASSWORD) {
+        document.getElementById('login-overlay').classList.add('hidden');
+        loadData();
+      } else {
+        document.getElementById('login-error').style.display = 'block';
+        document.getElementById('password-input').value = '';
+      }
+    }
+
+    document.getElementById('password-input').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') login();
+    });
+
+    // Navigation
+    function showSection(section) {
+      document.querySelectorAll('.main-content > section').forEach(s => s.classList.add('hidden'));
+      document.getElementById('section-' + section).classList.remove('hidden');
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      event.target.closest('.nav-item').classList.add('active');
+    }
+
+    // Load Data
+    async function loadData() {
+      showLoading(true);
+      try {
+        const [clientsRes, ordersRes] = await Promise.all([
+          fetch(API_BASE + '/clients'),
+          fetch(API_BASE + '/orders')
+        ]);
+        allClients = await clientsRes.json();
+        allOrders = await ordersRes.json();
+        
+        updateDashboard();
+        updateClientsTable();
+        updateOrdersTable();
+        updateAnalytics();
+        updateLoyaltyTable();
+        
+        document.getElementById('last-sync').textContent = new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      } catch (error) {
+        console.error('Erreur:', error);
+      }
+      showLoading(false);
+    }
+
+    function updateDashboard() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const totalBaskets = allOrders.reduce((sum, o) => sum + (o.quantity || 1), 0);
+      const totalRevenue = allOrders.reduce((sum, o) => sum + o.amount, 0);
+      const totalUnpaid = allOrders.filter(o => !o.isPaid).reduce((sum, o) => sum + o.amount, 0);
+      const unpaidCount = allOrders.filter(o => !o.isPaid).length;
+      
+      const todayOrders = allOrders.filter(o => new Date(o.date) >= today);
+      const todayBaskets = todayOrders.reduce((sum, o) => sum + (o.quantity || 1), 0);
+      const todayRevenue = todayOrders.filter(o => o.isPaid).reduce((sum, o) => sum + o.amount, 0);
+      
+      document.getElementById('stat-clients').textContent = allClients.length;
+      document.getElementById('stat-baskets').textContent = formatNumber(totalBaskets);
+      document.getElementById('stat-revenue').textContent = formatNumber(totalRevenue);
+      document.getElementById('stat-unpaid').textContent = formatNumber(totalUnpaid);
+      
+      document.getElementById('stat-baskets-today').textContent = '+' + todayBaskets + ' aujourd\'hui';
+      document.getElementById('stat-revenue-today').textContent = '+' + formatNumber(todayRevenue) + ' aujourd\'hui';
+      document.getElementById('stat-unpaid-count').textContent = unpaidCount + ' commandes';
+      
+      updateAlerts();
+      updateActivityFeed();
+      updateTopClients();
+      updateCharts();
+    }
+
+    function updateAlerts() {
+      const alertsSection = document.getElementById('alerts-section');
+      const alertsGrid = document.getElementById('alerts-grid');
+      
+      const clientsNearGoal = allClients.map(c => {
+        const clientOrders = allOrders.filter(o => o.clientId === c.id);
+        const totalBaskets = clientOrders.reduce((sum, o) => sum + (o.quantity || 1), 0);
+        const progress = (totalBaskets / 120) * 100;
+        return { ...c, totalBaskets, progress };
+      }).filter(c => c.progress >= 70 && c.progress < 100)
+        .sort((a, b) => b.progress - a.progress);
+      
+      if (clientsNearGoal.length === 0) {
+        alertsSection.style.display = 'none';
+        return;
+      }
+      
+      alertsSection.style.display = 'block';
+      document.getElementById('alert-count').textContent = clientsNearGoal.length;
+      
+      alertsGrid.innerHTML = clientsNearGoal.map(c => `
+        <div class="alert-item">
+          <div class="alert-info">
+            <h4>${escapeHtml(c.name)}</h4>
+            <p>${c.totalBaskets}/120 paniers - Plus que ${120 - c.totalBaskets} !</p>
+          </div>
+          <div class="alert-progress">
+            <svg width="60" height="60" viewBox="0 0 60 60">
+              <circle cx="30" cy="30" r="25" fill="none" stroke="#fde68a" stroke-width="6"/>
+              <circle cx="30" cy="30" r="25" fill="none" stroke="#f59e0b" stroke-width="6"
+                stroke-dasharray="${c.progress * 1.57} 157" stroke-linecap="round"/>
+            </svg>
+            <span class="alert-progress-text">${Math.round(c.progress)}%</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateActivityFeed() {
+      const activityList = document.getElementById('activity-list');
+      
+      const recentOrders = [...allOrders]
+        .sort((a, b) => new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date))
+        .slice(0, 5);
+      
+      if (recentOrders.length === 0) {
+        activityList.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px;">Aucune activite recente</p>';
+        return;
+      }
+      
+      activityList.innerHTML = recentOrders.map(o => `
+        <div class="activity-item">
+          <div class="activity-icon ${o.isPaid ? 'payment' : 'order'}">${o.isPaid ? '&#128181;' : '&#127838;'}</div>
+          <div class="activity-info">
+            <h4>${o.isPaid ? 'Paiement recu' : 'Nouvelle commande'} - ${escapeHtml(o.clientName)}</h4>
+            <p>${o.quantity || 1} panier(s) - ${getTimeAgo(o.createdAt || o.date)}</p>
+          </div>
+          <span class="activity-amount">${formatNumber(o.amount)} F</span>
+        </div>
+      `).join('');
+    }
+
+    function updateTopClients() {
+      const topList = document.getElementById('top-clients-list');
+      
+      const clientStats = allClients.map(c => {
+        const clientOrders = allOrders.filter(o => o.clientId === c.id);
+        const monthStart = new Date();
+        monthStart.setDate(1);
+        monthStart.setHours(0,0,0,0);
+        const monthlyOrders = clientOrders.filter(o => new Date(o.date) >= monthStart);
+        const monthlyTotal = monthlyOrders.reduce((sum, o) => sum + o.amount, 0);
+        return { ...c, monthlyTotal, orderCount: monthlyOrders.length };
+      }).filter(c => c.monthlyTotal > 0)
+        .sort((a, b) => b.monthlyTotal - a.monthlyTotal)
+        .slice(0, 5);
+      
+      if (clientStats.length === 0) {
+        topList.innerHTML = '<p style="color: var(--text-muted); text-align: center; padding: 40px;">Aucune donnee ce mois</p>';
+        return;
+      }
+      
+      topList.innerHTML = clientStats.map((c, i) => `
+        <div class="activity-item">
+          <div class="activity-icon client" style="background: ${i === 0 ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : ''}">${i === 0 ? '&#127942;' : '&#128100;'}</div>
+          <div class="activity-info">
+            <h4>${escapeHtml(c.name)}</h4>
+            <p>${c.quartier} - ${c.orderCount} commandes</p>
+          </div>
+          <span class="activity-amount">${formatNumber(c.monthlyTotal)} F</span>
+        </div>
+      `).join('');
+    }
+
+    function updateCharts() {
+      // Sales Chart
+      const last7Days = [];
+      const salesData = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        date.setHours(0, 0, 0, 0);
+        const nextDate = new Date(date);
+        nextDate.setDate(nextDate.getDate() + 1);
+        
+        const dayOrders = allOrders.filter(o => {
+          const orderDate = new Date(o.date);
+          return orderDate >= date && orderDate < nextDate;
+        });
+        
+        last7Days.push(date.toLocaleDateString('fr-FR', { weekday: 'short' }));
+        salesData.push(dayOrders.reduce((sum, o) => sum + o.amount, 0));
+      }
+      
+      if (salesChart) salesChart.destroy();
+      salesChart = new Chart(document.getElementById('salesChart'), {
+        type: 'line',
+        data: {
+          labels: last7Days,
+          datasets: [{
+            label: 'Ventes (FCFA)',
+            data: salesData,
+            borderColor: '#16a34a',
+            backgroundColor: 'rgba(22, 163, 74, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, ticks: { callback: v => formatNumber(v) } }
+          }
+        }
+      });
+      
+      // Payment Chart
+      const paidCount = allOrders.filter(o => o.isPaid).length;
+      const unpaidCount = allOrders.filter(o => !o.isPaid).length;
+      
+      if (paymentChart) paymentChart.destroy();
+      paymentChart = new Chart(document.getElementById('paymentChart'), {
+        type: 'doughnut',
+        data: {
+          labels: ['Payees', 'Impayees'],
+          datasets: [{
+            data: [paidCount, unpaidCount],
+            backgroundColor: ['#16a34a', '#ef4444'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          cutout: '70%',
+          plugins: {
+            legend: { position: 'bottom' }
+          }
+        }
+      });
+    }
+
+    function updateClientsTable() {
+      document.getElementById('total-clients').textContent = allClients.length;
+      const tbody = document.getElementById('clients-table');
+      
+      if (allClients.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:40px; color:var(--text-muted)">Aucun client enregistre</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = allClients.map(c => {
+        const clientOrders = allOrders.filter(o => o.clientId === c.id);
+        const totalBaskets = clientOrders.reduce((sum, o) => sum + (o.quantity || 1), 0);
+        const totalAmount = clientOrders.reduce((sum, o) => sum + o.amount, 0);
+        const progress = Math.min((totalBaskets / 120) * 100, 100);
+        
+        return `
+          <tr>
+            <td>
+              <div class="client-name">
+                <div class="client-avatar">${c.name.charAt(0).toUpperCase()}</div>
+                <span>${escapeHtml(c.name)}</span>
+              </div>
+            </td>
+            <td>${escapeHtml(c.quartier)}</td>
+            <td>${c.phone || '-'}</td>
+            <td>${clientOrders.length}</td>
+            <td>${formatNumber(totalAmount)} FCFA</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="loyalty-bar"><div class="loyalty-fill" style="width:${progress}%"></div></div>
+                <span style="font-size:12px;color:var(--text-secondary)">${totalBaskets}/120</span>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function updateOrdersTable() {
+      let filtered = allOrders;
+      if (currentOrderFilter === 'paid') filtered = allOrders.filter(o => o.isPaid);
+      if (currentOrderFilter === 'unpaid') filtered = allOrders.filter(o => !o.isPaid);
+      
+      filtered = [...filtered].sort((a, b) => new Date(b.date) - new Date(a.date));
+      
+      document.getElementById('total-orders').textContent = allOrders.length;
+      const tbody = document.getElementById('orders-table');
+      
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px; color:var(--text-muted)">Aucune commande</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = filtered.map(o => `
+        <tr>
+          <td>
+            <div class="client-name">
+              <div class="client-avatar">${o.clientName.charAt(0).toUpperCase()}</div>
+              <span>${escapeHtml(o.clientName)}</span>
+            </div>
+          </td>
+          <td>${o.quantity || 1} panier(s)</td>
+          <td>${formatNumber(o.amount)} FCFA</td>
+          <td><span class="status-badge ${o.isPaid ? 'paid' : 'unpaid'}">${o.isPaid ? 'Paye' : 'Impaye'}</span></td>
+          <td>${formatDate(o.date)}</td>
+        </tr>
+      `).join('');
+    }
+
+    function filterOrders(filter, btn) {
+      currentOrderFilter = filter;
+      document.querySelectorAll('.data-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      updateOrdersTable();
+    }
+
+    function updateAnalytics() {
+      const monthStart = new Date();
+      monthStart.setDate(1);
+      monthStart.setHours(0,0,0,0);
+      
+      const monthlyOrders = allOrders.filter(o => new Date(o.date) >= monthStart);
+      const monthlyRevenue = monthlyOrders.reduce((sum, o) => sum + o.amount, 0);
+      const avgBasket = allOrders.length > 0 ? Math.round(allOrders.reduce((sum, o) => sum + o.amount, 0) / allOrders.length) : 0;
+      
+      const daysSinceStart = Math.max(1, Math.ceil((Date.now() - monthStart.getTime()) / 86400000));
+      const avgDailyOrders = (monthlyOrders.length / daysSinceStart).toFixed(1);
+      
+      const paidCount = allOrders.filter(o => o.isPaid).length;
+      const paymentRate = allOrders.length > 0 ? Math.round((paidCount / allOrders.length) * 100) : 0;
+      
+      document.getElementById('monthly-revenue').textContent = formatNumber(monthlyRevenue) + ' FCFA';
+      document.getElementById('avg-basket').textContent = formatNumber(avgBasket);
+      document.getElementById('avg-daily-orders').textContent = avgDailyOrders;
+      document.getElementById('payment-rate').textContent = paymentRate + '%';
+      
+      // Quartier Chart
+      const quartierStats = {};
+      allClients.forEach(c => {
+        if (!quartierStats[c.quartier]) quartierStats[c.quartier] = 0;
+        const clientOrders = allOrders.filter(o => o.clientId === c.id);
+        quartierStats[c.quartier] += clientOrders.reduce((sum, o) => sum + o.amount, 0);
+      });
+      
+      const sortedQuartiers = Object.entries(quartierStats)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 8);
+      
+      if (quartierChart) quartierChart.destroy();
+      quartierChart = new Chart(document.getElementById('quartierChart'), {
+        type: 'bar',
+        data: {
+          labels: sortedQuartiers.map(q => q[0]),
+          datasets: [{
+            label: 'Ventes (FCFA)',
+            data: sortedQuartiers.map(q => q[1]),
+            backgroundColor: '#16a34a',
+            borderRadius: 8
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { beginAtZero: true, ticks: { callback: v => formatNumber(v) } }
+          }
+        }
+      });
+    }
+
+    function updateLoyaltyTable() {
+      const tbody = document.getElementById('loyalty-table');
+      
+      const clientsWithProgress = allClients.map(c => {
+        const clientOrders = allOrders.filter(o => o.clientId === c.id);
+        const totalBaskets = clientOrders.reduce((sum, o) => sum + (o.quantity || 1), 0);
+        const progress = (totalBaskets / 120) * 100;
+        return { ...c, totalBaskets, progress };
+      }).sort((a, b) => b.progress - a.progress);
+      
+      if (clientsWithProgress.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:40px; color:var(--text-muted)">Aucun client</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = clientsWithProgress.map(c => {
+        let status, statusClass;
+        if (c.progress >= 100) { status = 'OBJECTIF ATTEINT !'; statusClass = 'paid'; }
+        else if (c.progress >= 70) { status = 'Presque !'; statusClass = 'unpaid'; }
+        else { status = 'En cours'; statusClass = ''; }
+        
+        return `
+          <tr>
+            <td>
+              <div class="client-name">
+                <div class="client-avatar">${c.name.charAt(0).toUpperCase()}</div>
+                <span>${escapeHtml(c.name)}</span>
+              </div>
+            </td>
+            <td>${c.totalBaskets} paniers</td>
+            <td>
+              <div style="display:flex;align-items:center;gap:8px">
+                <div class="loyalty-bar" style="width:150px"><div class="loyalty-fill" style="width:${Math.min(c.progress, 100)}%"></div></div>
+                <span style="font-size:12px;font-weight:600">${Math.round(c.progress)}%</span>
+              </div>
+            </td>
+            <td>${Math.max(0, 120 - c.totalBaskets)} paniers</td>
+            <td><span class="status-badge ${statusClass}" style="${!statusClass ? 'background:#f1f5f9;color:#64748b' : ''}">${status}</span></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Helpers
+    function formatNumber(n) {
+      return new Intl.NumberFormat('fr-FR').format(n || 0);
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      return new Date(dateStr).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+
+    function getTimeAgo(dateStr) {
+      if (!dateStr) return '';
+      const diff = Date.now() - new Date(dateStr).getTime();
+      const mins = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+      
+      if (mins < 1) return "A l'instant";
+      if (mins < 60) return `Il y a ${mins} min`;
+      if (hours < 24) return `Il y a ${hours}h`;
+      if (days === 1) return 'Hier';
+      return `Il y a ${days} jours`;
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function showLoading(show) {
+      document.getElementById('loading').classList.toggle('hidden', !show);
+    }
+
+    // Auto-refresh every 30 seconds
+    setInterval(loadData, 30000);
+  </script>
+</body>
+</html>

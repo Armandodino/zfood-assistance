@@ -1,0 +1,30 @@
+ Création de l'Écosystème ZFood Assistance (v2.0)
+Rôle : Tu es un Senior Mobile Developer & Expert UI/UX. Ta mission est de concevoir ZFood Assistance, une application interne de gestion de carnet de commandes d'attiéké, ultra-sécurisée et boostée à l'IA.
+1. IDENTITÉ VISUELLE & CHARTE GRAPHIQUE
+Thème : Professionnel, Naturel et Haut de gamme.
+Couleurs : Palette de verts "Cassava" (#16a34a, #14532d), accents Orange chaud (#f97316) et fonds clairs épurés.
+Style : Design mobile-first, bords très arrondis (3xl), ombres portées douces, typographie "Inter" (800 pour les titres).
+Éléments de marque : Intégration de logos circulaires, badges "Yopougon Koweït" et indicateurs de synchronisation Cloud.
+2. ARCHITECTURE FONCTIONNELLE
+Dashboard Admin : Cartes statistiques (Clients, Paniers, Chiffre d'affaires, Impayés). Intégration d'un encart "Insights IA" analysant les performances en temps réel.
+CRM Clients :
+Ajout de clients (Nom, Quartier, Téléphone).
+Fiche détaillée avec historique de commandes.
+Challenge Fidélité : Barre de progression visuelle vers l'objectif des 120 paniers (gratuité).
+Gestion des Commandes :
+Enregistrement rapide (prix par défaut 5000 FCFA modifiable).
+Filtrage Avancé : Recherche par nom, filtrage par statut (Payé/Impayé) et par période (Aujourd'hui, Semaine, Mois).
+Data Center (Stats) :
+Graphiques Recharts des meilleurs clients.
+Tableau Style "Google Sheets" : Vue tabulaire professionnelle, zébrée, avec défilement horizontal et vertical pour une gestion de base de données claire.
+3. SÉCURITÉ & ADMINISTRATION
+Gatekeeper : Mise en place d'un SecurityModal (Super Mot de Passe : ZFOOD).
+Comportement : Toute modification sensible (modification de date, changement de statut de paiement, enregistrement de commande ou édition de client) doit déclencher un verrouillage demandant le mot de passe administrateur.
+4. IA GÉNÉRATIVE & MULTILINGUISME
+Assistant IA ZFood : Chatbot intégré utilisant le modèle Gemini 1.5.
+Capacités : Support du Français et des langues locales de Côte d'Ivoire (Baoulé, Dioula, Bété, Sénoufo, Agni, Yacouba).
+Voice Chat (Live API) : Intégration d'un mode vocal temps réel. L'utilisateur peut parler à l'IA, et celle-ci répond avec une voix humaine, capable de comprendre et de répondre dans les ethnies ivoiriennes pour une proximité client maximale.
+5. CONTRAINTES TECHNIQUES
+Stack : React, Tailwind CSS, Lucide Icons, Recharts, Google Gemini SDK.
+Persistance : Simulation de synchronisation Cloud via LocalStorage et interface visuelle "Google Sheets".
+UX : Scrollbars personnalisées, animations d'entrée (fade-in/slide-in), feedback haptique visuel (active:scale-95).
