@@ -1,0 +1,27 @@
+services:
+  # API Backend
+  - type: web
+    name: zfood-api
+    runtime: node
+    region: frankfurt
+    plan: free
+    buildCommand: npm install && npm run build:server
+    startCommand: npm run start:server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: AI_INTEGRATIONS_OPENAI_API_KEY
+        sync: false
+      - key: AI_INTEGRATIONS_OPENROUTER_API_KEY
+        sync: false
+
+  # Web Dashboard (Static Site)
+  - type: static
+    name: zfood-webapp
+    buildCommand: cd webapp && npm install && npm run build
+    staticPublishPath: webapp/dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false
