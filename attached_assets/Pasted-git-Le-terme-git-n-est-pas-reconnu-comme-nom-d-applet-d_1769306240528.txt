@@ -1,0 +1,53 @@
+git : Le terme «git» n'est pas reconnu comme nom d'applet de commande, fonction, fichier de script ou programme
+exécutable. Vérifiez l'orthographe du nom, ou si un chemin d'accès existe, vérifiez que le chemin d'accès est correct
+et réessayez.
+Au caractère Ligne:2 : 1
++ git init
++ ~~~
+    + CategoryInfo          : ObjectNotFound: (git:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+git : Le terme «git» n'est pas reconnu comme nom d'applet de commande, fonction, fichier de script ou programme
+exécutable. Vérifiez l'orthographe du nom, ou si un chemin d'accès existe, vérifiez que le chemin d'accès est correct
+et réessayez.
+Au caractère Ligne:3 : 1
++ git add .
++ ~~~
+    + CategoryInfo          : ObjectNotFound: (git:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+git : Le terme «git» n'est pas reconnu comme nom d'applet de commande, fonction, fichier de script ou programme
+exécutable. Vérifiez l'orthographe du nom, ou si un chemin d'accès existe, vérifiez que le chemin d'accès est correct
+et réessayez.
+Au caractère Ligne:4 : 1
++ git commit -m "Initial commit"
++ ~~~
+    + CategoryInfo          : ObjectNotFound: (git:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+git : Le terme «git» n'est pas reconnu comme nom d'applet de commande, fonction, fichier de script ou programme
+exécutable. Vérifiez l'orthographe du nom, ou si un chemin d'accès existe, vérifiez que le chemin d'accès est correct
+et réessayez.
+Au caractère Ligne:5 : 1
++ git branch -M main
++ ~~~
+    + CategoryInfo          : ObjectNotFound: (git:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+git : Le terme «git» n'est pas reconnu comme nom d'applet de commande, fonction, fichier de script ou programme
+exécutable. Vérifiez l'orthographe du nom, ou si un chemin d'accès existe, vérifiez que le chemin d'accès est correct
+et réessayez.
+Au caractère Ligne:6 : 1
++ git remote add origin https://github.com/Armandodino/zfood-assistance ...
++ ~~~
+    + CategoryInfo          : ObjectNotFound: (git:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
+
+git : Le terme «git» n'est pas reconnu comme nom d'applet de commande, fonction, fichier de script ou programme
+exécutable. Vérifiez l'orthographe du nom, ou si un chemin d'accès existe, vérifiez que le chemin d'accès est correct
+et réessayez.
+Au caractère Ligne:7 : 1
++ git push -u origin main
++ ~~~
+    + CategoryInfo          : ObjectNotFound: (git:String) [], CommandNotFoundException
+    + FullyQualifiedErrorId : CommandNotFoundException
