@@ -29,6 +29,7 @@
     "db:import": "npx tsx scripts/import-data.ts"
   },
   "dependencies": {
+    "@vercel/node": "^3.2.0",
     "@expo-google-fonts/inter": "^0.4.2",
     "@expo-google-fonts/nunito": "^0.4.2",
     "@expo-google-fonts/poppins": "^0.4.1",

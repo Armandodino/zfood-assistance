@@ -1,12 +1,14 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
+import { drizzle } from "drizzle-orm/node-postgres";
+import { Pool } from "pg";
 import { desc, eq, sql, and, gte, lte } from "drizzle-orm";
 import { pgTable, serial, varchar, text, boolean, integer, timestamp, date } from "drizzle-orm/pg-core";
 
-const connectionString = process.env.DATABASE_URL!;
-const client = postgres(connectionString);
-const db = drizzle(client);
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false }
+});
+const db = drizzle(pool);
 
 const users = pgTable("users", {
   id: serial("id").primaryKey(),
@@ -63,6 +65,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const path = url?.split("?")[0] || "";
 
   try {
+    // Root
+    if (path === "/" || path === "") {
+      return res.json({ 
+        message: "ZFood Assistance API", 
+        status: "online",
+        version: "1.0.0",
+        endpoints: ["/api/health", "/api/users", "/api/clients", "/api/orders", "/api/stats"]
+      });
+    }
+
     // Health check
     if (path === "/api/health") {
       return res.json({ status: "ok", timestamp: new Date().toISOString() });
