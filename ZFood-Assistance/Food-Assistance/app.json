@@ -9,7 +9,10 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "extra": {
-      "EXPO_PUBLIC_DOMAIN": "f7d17aee-802a-40ed-ac8e-5c98aba8e47d-00-3d3zm4o3nbo2d.kirk.replit.dev"
+      "EXPO_PUBLIC_DOMAIN": "zfood-assistance.vercel.app",
+      "eas": {
+        "projectId": "3acd4ce3-f84f-4b69-8195-a8ffc4e75df3"
+      }
     },
     "ios": {
       "supportsTablet": true,

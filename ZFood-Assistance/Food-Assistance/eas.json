@@ -13,7 +13,7 @@
       },
       "distribution": "internal",
       "env": {
-        "EXPO_PUBLIC_DOMAIN": "4236f300-5932-495b-be4d-c3326fe0df14-00-xua7pj78rh4w.picard.replit.dev:5000"
+        "EXPO_PUBLIC_DOMAIN": "zfood-assistance.vercel.app"
       }
     },
     "production": {
@@ -21,7 +21,7 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_DOMAIN": "4236f300-5932-495b-be4d-c3326fe0df14-00-xua7pj78rh4w.picard.replit.dev:5000"
+        "EXPO_PUBLIC_DOMAIN": "zfood-assistance.vercel.app"
       }
     }
   },

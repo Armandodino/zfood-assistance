@@ -273,7 +273,7 @@ export async function updateUser(userId: string, data: Partial<User>): Promise<U
 }
 
 export async function loginUser(email: string, password: string): Promise<User> {
-  const res = await fetch(`${API_BASE}/users/login`, {
+  const res = await fetch(`${API_BASE}/auth/login`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
