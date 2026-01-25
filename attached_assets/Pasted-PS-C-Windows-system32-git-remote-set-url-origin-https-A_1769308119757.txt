@@ -1,0 +1,42 @@
+PS C:\Windows\system32> git remote set-url origin https://Armandodino@github.com/Armandodino/zfood-assistance.git
+>> git push -u origin main
+fatal: detected dubious ownership in repository at 'C:/'
+'C:/' is owned by:
+        NT SERVICE/TrustedInstaller (S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464)
+but the current user is:
+        DESKTOP-A28A0L3/Lenovo (S-1-5-21-3042322833-2400044597-1024804717-1001)
+To add an exception for this directory, call:
+
+        git config --global --add safe.directory C:/
+fatal: detected dubious ownership in repository at 'C:/'
+'C:/' is owned by:
+        NT SERVICE/TrustedInstaller (S-1-5-80-956008885-3418522649-1831038044-1853292631-2271478464)
+but the current user is:
+        DESKTOP-A28A0L3/Lenovo (S-1-5-21-3042322833-2400044597-1024804717-1001)
+To add an exception for this directory, call:
+
+        git config --global --add safe.directory C:/
+PS C:\Windows\system32> cd "C:\zfood final\zfood-assistance"
+>> git config --global --add safe.directory "C:/zfood final/zfood-assistance"
+>> git remote set-url origin https://Armandodino@github.com/Armandodino/zfood-assistance.git
+>> git push -u origin main
+info: please complete authentication in your browser...
+Enumerating objects: 435, done.
+Counting objects: 100% (435/435), done.
+Delta compression using up to 4 threads
+Compressing objects: 100% (408/408), done.
+Writing objects: 100% (435/435), 105.67 MiB | 1.19 MiB/s, done.
+Total 435 (delta 75), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (75/75), done.
+remote: warning: See https://gh.io/lfs for more information.
+remote: warning: File zipFile.zip is 69.37 MB; this is larger than GitHub's recommended maximum file size of 50.00 MB
+remote: warning: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.
+To https://github.com/Armandodino/zfood-assistance.git
+ * [new branch]      main -> main
+branch 'main' set up to track 'origin/main'.
+PS C:\zfood final\zfood-assistance>
+
+
+
+
+
