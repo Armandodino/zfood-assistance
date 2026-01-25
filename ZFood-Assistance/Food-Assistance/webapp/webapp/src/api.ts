@@ -1,6 +1,6 @@
 import type { Client, Order, ActivityLog } from './types';
 
-const API_BASE = '/api';
+const API_BASE = import.meta.env.VITE_API_URL || 'https://zfood-assistance.vercel.app/api';
 
 export async function fetchClients(): Promise<Client[]> {
   const res = await fetch(`${API_BASE}/clients`);
