@@ -108,11 +108,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     // Auth
-    if (path === "/api/auth/login" && method === "POST") {
+    if ((path === "/api/auth/login" || path === "/api/users/login") && method === "POST") {
       const { email, password } = req.body;
       const user = await db.select().from(users).where(eq(users.email, email)).limit(1);
       if (user.length === 0 || user[0].password !== password) {
-        return res.status(401).json({ error: "Invalid credentials" });
+        return res.status(401).json({ error: "Email ou mot de passe incorrect" });
       }
       const { password: _, ...userWithoutPassword } = user[0];
       return res.json(userWithoutPassword);
