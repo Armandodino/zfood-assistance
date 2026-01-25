@@ -1,183 +1,161 @@
-import express from "express";
-import type { Request, Response, NextFunction } from "express";
-import { db } from "../server/db";
-import { activityLogs, dailyProduction, stockConfig, clients, orders, users } from "../shared/schema";
-import { desc, eq, sql, and, gte, lte, like, or } from "drizzle-orm";
+import type { VercelRequest, VercelResponse } from "@vercel/node";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import { desc, eq, sql, and, gte, lte } from "drizzle-orm";
+import { pgTable, serial, varchar, text, boolean, integer, timestamp, date } from "drizzle-orm/pg-core";
 
-const app = express();
+const connectionString = process.env.DATABASE_URL!;
+const client = postgres(connectionString);
+const db = drizzle(client);
 
-app.use((req, res, next) => {
-  const origin = req.header("origin");
-  res.header("Access-Control-Allow-Origin", origin || "*");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  res.header("Access-Control-Allow-Credentials", "true");
+const users = pgTable("users", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 255 }).unique().notNull(),
+  password: varchar("password", { length: 255 }).notNull(),
+  isSudo: boolean("is_sudo").default(false),
+  mustChangePassword: boolean("must_change_password").default(true),
+  fonction: varchar("fonction", { length: 255 }),
+  phone: varchar("phone", { length: 50 }),
+  photo: text("photo"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+const clients = pgTable("clients", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 255 }).notNull(),
+  phone: varchar("phone", { length: 50 }),
+  address: text("address"),
+  totalBaskets: integer("total_baskets").default(0),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+const orders = pgTable("orders", {
+  id: serial("id").primaryKey(),
+  clientId: integer("client_id"),
+  clientName: varchar("client_name", { length: 255 }),
+  quantity: integer("quantity").notNull(),
+  unitPrice: integer("unit_price").notNull(),
+  totalPrice: integer("total_price"),
+  isPaid: boolean("is_paid").default(false),
+  paymentDate: timestamp("payment_date"),
+  orderDate: date("order_date").defaultNow(),
+  notes: text("notes"),
+  createdBy: integer("created_by"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+function setCors(res: VercelResponse) {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse) {
+  setCors(res);
+  
   if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
+    return res.status(200).end();
   }
-  next();
-});
 
-app.use(express.json());
+  const { url, method } = req;
+  const path = url?.split("?")[0] || "";
 
-app.get("/api/health", (_req, res) => {
-  res.json({ status: "ok", timestamp: new Date().toISOString() });
-});
-
-app.get("/api/users", async (_req, res) => {
   try {
-    const allUsers = await db.select({
-      id: users.id,
-      name: users.name,
-      email: users.email,
-      isSudo: users.isSudo,
-      mustChangePassword: users.mustChangePassword,
-      fonction: users.fonction,
-      phone: users.phone,
-      photo: users.photo,
-      createdAt: users.createdAt,
-    }).from(users).orderBy(desc(users.createdAt));
-    res.json(allUsers);
-  } catch (error) {
-    console.error("Error fetching users:", error);
-    res.status(500).json({ error: "Failed to fetch users" });
-  }
-});
-
-app.post("/api/users", async (req, res) => {
-  try {
-    const { name, email, password, isSudo, fonction, phone, photo } = req.body;
-    const newUser = await db.insert(users).values({
-      name,
-      email,
-      password,
-      isSudo: isSudo || false,
-      mustChangePassword: true,
-      fonction,
-      phone,
-      photo,
-    }).returning();
-    res.json(newUser[0]);
-  } catch (error) {
-    console.error("Error creating user:", error);
-    res.status(500).json({ error: "Failed to create user" });
-  }
-});
-
-app.post("/api/auth/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    const user = await db.select().from(users).where(eq(users.email, email)).limit(1);
-    if (user.length === 0) {
-      return res.status(401).json({ error: "Invalid credentials" });
+    // Health check
+    if (path === "/api/health") {
+      return res.json({ status: "ok", timestamp: new Date().toISOString() });
     }
-    if (user[0].password !== password) {
-      return res.status(401).json({ error: "Invalid credentials" });
+
+    // Users
+    if (path === "/api/users" && method === "GET") {
+      const allUsers = await db.select({
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        isSudo: users.isSudo,
+        mustChangePassword: users.mustChangePassword,
+        fonction: users.fonction,
+        phone: users.phone,
+        photo: users.photo,
+        createdAt: users.createdAt,
+      }).from(users).orderBy(desc(users.createdAt));
+      return res.json(allUsers);
     }
-    const { password: _, ...userWithoutPassword } = user[0];
-    res.json(userWithoutPassword);
-  } catch (error) {
-    console.error("Error logging in:", error);
-    res.status(500).json({ error: "Failed to login" });
-  }
-});
 
-app.get("/api/clients", async (_req, res) => {
-  try {
-    const allClients = await db.select().from(clients).orderBy(desc(clients.createdAt));
-    res.json(allClients);
-  } catch (error) {
-    console.error("Error fetching clients:", error);
-    res.status(500).json({ error: "Failed to fetch clients" });
-  }
-});
-
-app.post("/api/clients", async (req, res) => {
-  try {
-    const newClient = await db.insert(clients).values(req.body).returning();
-    res.json(newClient[0]);
-  } catch (error) {
-    console.error("Error creating client:", error);
-    res.status(500).json({ error: "Failed to create client" });
-  }
-});
-
-app.get("/api/orders", async (req, res) => {
-  try {
-    const { startDate, endDate, isPaid, clientId, search } = req.query;
-    let query = db.select().from(orders);
-    const conditions = [];
-    
-    if (startDate) {
-      conditions.push(gte(orders.orderDate, startDate as string));
+    if (path === "/api/users" && method === "POST") {
+      const { name, email, password, isSudo, fonction, phone, photo } = req.body;
+      const newUser = await db.insert(users).values({
+        name, email, password,
+        isSudo: isSudo || false,
+        mustChangePassword: true,
+        fonction, phone, photo,
+      }).returning();
+      return res.json(newUser[0]);
     }
-    if (endDate) {
-      conditions.push(lte(orders.orderDate, endDate as string));
-    }
-    if (isPaid !== undefined) {
-      conditions.push(eq(orders.isPaid, isPaid === "true"));
-    }
-    if (clientId) {
-      conditions.push(eq(orders.clientId, parseInt(clientId as string)));
-    }
-    
-    if (conditions.length > 0) {
-      query = query.where(and(...conditions)) as any;
-    }
-    
-    const allOrders = await query.orderBy(desc(orders.orderDate));
-    res.json(allOrders);
-  } catch (error) {
-    console.error("Error fetching orders:", error);
-    res.status(500).json({ error: "Failed to fetch orders" });
-  }
-});
 
-app.post("/api/orders", async (req, res) => {
-  try {
-    const newOrder = await db.insert(orders).values(req.body).returning();
-    res.json(newOrder[0]);
-  } catch (error) {
-    console.error("Error creating order:", error);
-    res.status(500).json({ error: "Failed to create order" });
-  }
-});
+    // Auth
+    if (path === "/api/auth/login" && method === "POST") {
+      const { email, password } = req.body;
+      const user = await db.select().from(users).where(eq(users.email, email)).limit(1);
+      if (user.length === 0 || user[0].password !== password) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+      const { password: _, ...userWithoutPassword } = user[0];
+      return res.json(userWithoutPassword);
+    }
 
-app.patch("/api/orders/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const updated = await db.update(orders)
-      .set(req.body)
-      .where(eq(orders.id, parseInt(id)))
-      .returning();
-    res.json(updated[0]);
-  } catch (error) {
-    console.error("Error updating order:", error);
-    res.status(500).json({ error: "Failed to update order" });
-  }
-});
+    // Clients
+    if (path === "/api/clients" && method === "GET") {
+      const allClients = await db.select().from(clients).orderBy(desc(clients.createdAt));
+      return res.json(allClients);
+    }
 
-app.get("/api/stats", async (_req, res) => {
-  try {
-    const totalClients = await db.select({ count: sql<number>`count(*)` }).from(clients);
-    const totalOrders = await db.select({ count: sql<number>`count(*)` }).from(orders);
-    const totalRevenue = await db.select({ 
-      sum: sql<number>`COALESCE(SUM(quantity * unit_price), 0)` 
-    }).from(orders).where(eq(orders.isPaid, true));
-    const unpaidAmount = await db.select({ 
-      sum: sql<number>`COALESCE(SUM(quantity * unit_price), 0)` 
-    }).from(orders).where(eq(orders.isPaid, false));
-    
-    res.json({
-      totalClients: totalClients[0]?.count || 0,
-      totalOrders: totalOrders[0]?.count || 0,
-      totalRevenue: totalRevenue[0]?.sum || 0,
-      unpaidAmount: unpaidAmount[0]?.sum || 0,
-    });
-  } catch (error) {
-    console.error("Error fetching stats:", error);
-    res.status(500).json({ error: "Failed to fetch stats" });
-  }
-});
+    if (path === "/api/clients" && method === "POST") {
+      const newClient = await db.insert(clients).values(req.body).returning();
+      return res.json(newClient[0]);
+    }
 
-export default app;
+    // Orders
+    if (path === "/api/orders" && method === "GET") {
+      const allOrders = await db.select().from(orders).orderBy(desc(orders.orderDate));
+      return res.json(allOrders);
+    }
+
+    if (path === "/api/orders" && method === "POST") {
+      const newOrder = await db.insert(orders).values(req.body).returning();
+      return res.json(newOrder[0]);
+    }
+
+    if (path.startsWith("/api/orders/") && method === "PATCH") {
+      const id = parseInt(path.split("/").pop() || "0");
+      const updated = await db.update(orders).set(req.body).where(eq(orders.id, id)).returning();
+      return res.json(updated[0]);
+    }
+
+    // Stats
+    if (path === "/api/stats" && method === "GET") {
+      const totalClients = await db.select({ count: sql<number>`count(*)` }).from(clients);
+      const totalOrders = await db.select({ count: sql<number>`count(*)` }).from(orders);
+      const totalRevenue = await db.select({ 
+        sum: sql<number>`COALESCE(SUM(quantity * unit_price), 0)` 
+      }).from(orders).where(eq(orders.isPaid, true));
+      const unpaidAmount = await db.select({ 
+        sum: sql<number>`COALESCE(SUM(quantity * unit_price), 0)` 
+      }).from(orders).where(eq(orders.isPaid, false));
+      
+      return res.json({
+        totalClients: totalClients[0]?.count || 0,
+        totalOrders: totalOrders[0]?.count || 0,
+        totalRevenue: totalRevenue[0]?.sum || 0,
+        unpaidAmount: unpaidAmount[0]?.sum || 0,
+      });
+    }
+
+    return res.status(404).json({ error: "Not found" });
+  } catch (error) {
+    console.error("API Error:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+}
