@@ -1,9 +1,11 @@
 {
   "version": 2,
-  "buildCommand": "cd webapp && npm install && npm run build",
-  "outputDirectory": "webapp/dist",
+  "functions": {
+    "api/index.ts": {
+      "runtime": "@vercel/node@3.0.0"
+    }
+  },
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/api/(.*)", "destination": "/api" }
   ]
 }
