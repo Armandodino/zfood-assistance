@@ -80,7 +80,7 @@ function App() {
     }
     return false;
   });
-  const [currentAdmin, setCurrentAdmin] = useState<{ id: string; name: string; isSudo?: boolean } | null>(() => {
+  const [currentAdmin, setCurrentAdmin] = useState<{ id: string; name: string; email: string; isSudo?: boolean } | null>(() => {
     const session = localStorage.getItem('zfood_session');
     if (session) {
       const { admin, expiresAt } = JSON.parse(session);
@@ -132,7 +132,7 @@ function App() {
     
     try {
       const user = await loginUser(loginEmail, loginPassword);
-      const adminData = { id: user.id, name: user.name, isSudo: user.isSudo };
+      const adminData = { id: user.id, name: user.name, email: user.email, isSudo: user.isSudo };
       const expiresAt = new Date(Date.now() + INACTIVITY_TIMEOUT).toISOString();
       localStorage.setItem('zfood_session', JSON.stringify({ admin: adminData, expiresAt }));
       setCurrentAdmin(adminData);
