@@ -162,9 +162,13 @@ function App() {
     setSecurityError('');
   };
 
-  const validateSecurity = () => {
-    const admin = admins.find((a: typeof admins[0]) => a.id === currentAdmin?.id);
-    if (admin && admin.password === securityPassword) {
+  const validateSecurity = async () => {
+    if (!currentAdmin?.email) {
+      setSecurityError('Erreur: Utilisateur non connecté');
+      return;
+    }
+    try {
+      await loginUser(currentAdmin.email, securityPassword);
       setShowSecurityModal(false);
       setSecurityPassword('');
       setSecurityError('');
@@ -172,7 +176,7 @@ function App() {
         pendingAction();
         setPendingAction(null);
       }
-    } else {
+    } catch {
       setSecurityError('Mot de passe incorrect');
     }
   };
