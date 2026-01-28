@@ -97,6 +97,12 @@ function App() {
   const [securityPassword, setSecurityPassword] = useState('');
   const [securityError, setSecurityError] = useState('');
   const [pendingAction, setPendingAction] = useState<(() => void) | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const showSuccess = (message: string) => {
+    setSuccessMessage(message);
+    setTimeout(() => setSuccessMessage(null), 4000);
+  };
 
   const resetInactivityTimer = () => {
     if (currentAdmin) {
@@ -362,7 +368,9 @@ function App() {
       await createClient(newClient);
       setNewClient({ name: '', quartier: '', phone: '' });
       setShowAddClient(false);
-      loadData();
+      await loadData();
+      showSuccess('Client ajouté avec succès !');
+      setActiveTab('clients');
     } catch (error) {
       console.error('Error creating client:', error);
     }
@@ -419,7 +427,9 @@ function App() {
       });
       setNewOrder({ clientId: '', quantity: 1, paymentType: 'unpaid', paidAmount: 0, date: format(new Date(), 'yyyy-MM-dd') });
       setShowAddOrder(false);
-      loadData();
+      await loadData();
+      showSuccess('Commande ajoutée avec succès !');
+      setActiveTab('orders');
     } catch (error) {
       console.error('Error creating order:', error);
     }
@@ -537,6 +547,12 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
+      {successMessage && (
+        <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 animate-pulse">
+          <CheckCircle size={20} />
+          {successMessage}
+        </div>
+      )}
       <aside className={`${sidebarOpen ? 'w-64' : 'w-20'} bg-white border-r border-slate-200 transition-all duration-300 flex flex-col`}>
         <div className="p-4 border-b border-slate-200 flex items-center justify-between">
           {sidebarOpen ? (
