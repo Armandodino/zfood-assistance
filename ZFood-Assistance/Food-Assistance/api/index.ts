@@ -136,7 +136,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     if (path === "/api/orders" && method === "POST") {
-      const newOrder = await db.insert(orders).values(req.body).returning();
+      const { clientId, clientName, quantity, amount, paidAmount, isPaid, date, collectionDate, unitPrice, totalPrice, orderDate } = req.body;
+      const orderData = {
+        clientId: clientId ? parseInt(clientId) : null,
+        clientName,
+        quantity,
+        unitPrice: unitPrice || amount || 0,
+        totalPrice: totalPrice || (quantity * (unitPrice || amount || 0)),
+        isPaid: isPaid || false,
+        orderDate: orderDate || date || new Date().toISOString().split('T')[0],
+      };
+      const newOrder = await db.insert(orders).values(orderData).returning();
       return res.json(newOrder[0]);
     }
 
