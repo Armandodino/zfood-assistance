@@ -51,7 +51,7 @@ const orders = pgTable("orders", {
 function setCors(res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, x-admin-password, x-admin-id, x-admin-name");
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
