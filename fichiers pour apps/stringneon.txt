@@ -1,0 +1,77 @@
+
+CNT STRG: postgresql://postgres.qcaoijstsdbzppioclwk:Moutonblanc98%40@aws-1-eu-central-1.pooler.supabase.com:6543/postgres
+
+
+
+
+bd// 
+
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  is_sudo BOOLEAN DEFAULT FALSE,
+  must_change_password BOOLEAN DEFAULT TRUE,
+  fonction VARCHAR(255),
+  phone VARCHAR(50),
+  photo TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS clients (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  phone VARCHAR(50),
+  address TEXT,
+  total_baskets INTEGER DEFAULT 0,
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+  id SERIAL PRIMARY KEY,
+  client_id INTEGER REFERENCES clients(id),
+  client_name VARCHAR(255),
+  quantity INTEGER NOT NULL,
+  unit_price INTEGER NOT NULL,
+  total_price INTEGER,
+  is_paid BOOLEAN DEFAULT FALSE,
+  payment_date TIMESTAMP,
+  order_date DATE DEFAULT CURRENT_DATE,
+  notes TEXT,
+  created_by INTEGER REFERENCES users(id),
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS activity_logs (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER REFERENCES users(id),
+  user_name VARCHAR(255),
+  action VARCHAR(255) NOT NULL,
+  details TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS daily_production (
+  id SERIAL PRIMARY KEY,
+  production_date DATE UNIQUE NOT NULL,
+  baskets_produced INTEGER DEFAULT 0,
+  baskets_sold INTEGER DEFAULT 0,
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS stock_config (
+  id SERIAL PRIMARY KEY,
+  default_price INTEGER DEFAULT 500,
+  low_stock_alert INTEGER DEFAULT 10,
+  updated_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Créer les utilisateurs par défaut
+INSERT INTO users (name, email, password, is_sudo, must_change_password, fonction) VALUES
+('Armando', 'armando@zfood.ci', '1234', TRUE, TRUE, 'Administrateur'),
+('Zara Ange', 'zara@zfood.ci', '1234', FALSE, TRUE, 'Gestionnaire'),
+('Daniel', 'daniel@zfood.ci', '1234', FALSE, TRUE, 'Vendeur')
+ON CONFLICT (email) DO NOTHING; //

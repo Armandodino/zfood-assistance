@@ -1,11 +1,12 @@
-import React, { useEffect } from "react";
-import { StyleSheet, ActivityIndicator, View, Pressable } from "react-native";
+import React, { useEffect, useState } from "react";
+import { StyleSheet, ActivityIndicator, View, Pressable, Text } from "react-native";
 import { NavigationContainer } from "@react-navigation/native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { StatusBar } from "expo-status-bar";
 import * as SplashScreen from "expo-splash-screen";
+import NetInfo from "@react-native-community/netinfo";
 import {
   useFonts,
   Poppins_400Regular,
@@ -29,6 +30,21 @@ import { LogoutWarningModal } from "@/components/LogoutWarningModal";
 import { ZFoodColors } from "@/constants/theme";
 
 SplashScreen.preventAutoHideAsync();
+
+function NoConnectionScreen({ onRetry }: { onRetry: () => void }) {
+  return (
+    <View style={styles.noConnection}>
+      <Text style={styles.noConnectionIcon}>📡</Text>
+      <Text style={styles.noConnectionTitle}>Pas de connexion Internet</Text>
+      <Text style={styles.noConnectionText}>
+        Veuillez vérifier votre connexion Internet et réessayer.
+      </Text>
+      <Pressable style={styles.retryButton} onPress={onRetry}>
+        <Text style={styles.retryButtonText}>Réessayer</Text>
+      </Pressable>
+    </View>
+  );
+}
 
 function ActivityTracker({ children }: { children: React.ReactNode }) {
   const { resetInactivityTimer } = useSecurity();
@@ -95,15 +111,49 @@ export default function App() {
     Poppins_600SemiBold,
     Poppins_800ExtraBold,
   });
+  const [isConnected, setIsConnected] = useState<boolean | null>(null);
+  const [checkingConnection, setCheckingConnection] = useState(true);
+
+  const checkConnection = async () => {
+    setCheckingConnection(true);
+    try {
+      const state = await NetInfo.fetch();
+      setIsConnected(state.isConnected && state.isInternetReachable !== false);
+    } catch {
+      setIsConnected(false);
+    } finally {
+      setCheckingConnection(false);
+    }
+  };
 
   useEffect(() => {
-    if (fontsLoaded || fontError) {
+    checkConnection();
+    const unsubscribe = NetInfo.addEventListener(state => {
+      setIsConnected(state.isConnected && state.isInternetReachable !== false);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    if ((fontsLoaded || fontError) && !checkingConnection) {
       SplashScreen.hideAsync();
     }
-  }, [fontsLoaded, fontError]);
+  }, [fontsLoaded, fontError, checkingConnection]);
 
   if (!fontsLoaded && !fontError) {
     return null;
+  }
+
+  if (checkingConnection) {
+    return (
+      <View style={styles.loading}>
+        <ActivityIndicator size="large" color={ZFoodColors.primary600} />
+      </View>
+    );
+  }
+
+  if (isConnected === false) {
+    return <NoConnectionScreen onRetry={checkConnection} />;
   }
 
   return (
@@ -133,5 +183,41 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#FFFFFF",
+  },
+  noConnection: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#FFFFFF",
+    padding: 32,
+  },
+  noConnectionIcon: {
+    fontSize: 64,
+    marginBottom: 24,
+  },
+  noConnectionTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#1F2937",
+    marginBottom: 12,
+    textAlign: "center",
+  },
+  noConnectionText: {
+    fontSize: 16,
+    color: "#6B7280",
+    textAlign: "center",
+    marginBottom: 32,
+    lineHeight: 24,
+  },
+  retryButton: {
+    backgroundColor: ZFoodColors.primary600,
+    paddingHorizontal: 32,
+    paddingVertical: 14,
+    borderRadius: 12,
+  },
+  retryButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
